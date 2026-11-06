@@ -1,0 +1,15 @@
+{
+  "originHash" : "f3ceada96e4aa40854b3e20b2891b3d4e5e22375d3058e0943219dac7b3e9d60",
+  "pins" : [
+    {
+      "identity" : "did-proximity-sdk-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OmniOneID/did-proximity-sdk-ios.git",
+      "state" : {
+        "revision" : "bb909559439dc36a48abd83e264b799fe779e82d",
+        "version" : "1.0.0"
+      }
+    }
+  ],
+  "version" : 3
+}
