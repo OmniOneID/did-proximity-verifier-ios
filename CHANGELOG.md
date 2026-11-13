@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.0 (Unreleased)
+## v1.0.0 (2026-11-13)
 
 ### 🚀 New Features
 - mdoc (ISO/IEC 18013-5) proximity verification on top of `MdocProximitySDK`
