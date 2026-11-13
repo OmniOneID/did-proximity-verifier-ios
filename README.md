@@ -21,7 +21,7 @@ Session handling and verification are done by the [mdoc Proximity SDK](https://g
 | OS               | iOS 17                                          |
 | Language         | Swift 5                                         |
 | UI Framework     | SwiftUI                                         |
-| IDE              | Xcode 27.0                                      |
+| IDE              | Xcode 27.2                                      |
 | Build System     | Xcode Basic build system                        |
 | Compatibility    | iOS 17 or higher                                |
 | Test Environment | iPhone Simulator and physical device            |
@@ -69,7 +69,7 @@ How to compile and test your app using Xcode's default build system.
 The same build from the command line:
 ```sh
 xcodebuild -project source/ProximityVerifier.xcodeproj -scheme ProximityVerifier \
-  -destination 'platform=iOS Simulator,name=iPhone 17' build
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 ```
 
 ## SDK Application Method
@@ -102,14 +102,16 @@ Both AIDs must be registered, in this order:
 2. `A0000002480400` — mdoc data retrieval. Without it, the SELECT for data retrieval is rejected.
 
 ### Trusted issuers
-The trusted issuer list comes from the TAS list API (`GET /list/api/v1/mdoc/issuers`), and each listed issuer's DID Document comes from a separate endpoint. Both are downloaded together when **Refresh Trusted Issuers** is tapped and stored on the device; verification uses only the stored copies. Both constants currently point to development LAN servers over HTTP (with an ATS exception in `source/Config/Info.plist`); replace them with production addresses before release.
+The trusted issuer list comes from the TAS list API (`GET /list/api/v1/mdoc/issuers`), and each listed issuer's DID Document comes from the API Gateway (`GET /api-gateway/api/v1/did-doc?did=...`). Both are downloaded together when **Refresh Trusted Issuers** is tapped and stored on the device; verification uses only the stored copies. An empty trusted issuer list rejects every issuer.
 
-| What | Constant |
-| --- | --- |
-| TAS host for the trusted issuer list | `TrustedIssuerRegistryConfig.host` (`source/ProximityVerifier/Trust/TrustedIssuerRegistry.swift`) |
-| Issuer DID Document | `IssuerKeyStoreConfig.endpoint` (`source/ProximityVerifier/Trust/IssuerKeyStore.swift`) |
+The two server addresses are set on the **Server URL** screen (Settings → Trusted Issuers → gear icon in the app bar). Each server is either Default (the build default) or Custom (a URL entered on the screen). A saved value applies to the next request without a restart, and if a save changes an effective URL, the stored trusted issuer list is cleared so it must be refreshed again.
 
-If the TAS host is set to `nil`, the app uses a sample issuer list with empty DID Documents, so issuer signatures cannot be verified. An empty trusted issuer list rejects every issuer.
+| Server | Serves | Build default |
+| --- | --- | --- |
+| TAS | Trusted issuer list | `http://192.168.3.110:8090` |
+| API Gateway | Issuer DID Document | `http://192.168.3.110:8093` |
+
+The build defaults are development LAN servers over HTTP and are defined in `ServerEndpoint.defaultValue` (`source/ProximityVerifier/Trust/ServerURLStore.swift`); replace them with production addresses before release. HTTP is allowed by `NSAllowsArbitraryLoads` in `source/Config/Info.plist`, which also declares `NSLocalNetworkUsageDescription` for local network access.
 
 ### Run without a holder (DEBUG only)
 Debug builds accept a launch argument that replaces the SDK session with sample data.

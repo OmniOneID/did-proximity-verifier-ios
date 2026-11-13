@@ -2,7 +2,8 @@
 
 ### This project uses the following third-party libraries, each under its own license:
 
-The app declares a single dependency, `MdocProximitySDK` (OmniOne, Apache-2.0). The SDK depends only on
+The app declares a single dependency, the `MdocProximitySDK` Swift package (OmniOne, Apache-2.0; repository
+`did-proximity-sdk-ios`, product `MdocReader`). The SDK depends only on
 Apple system frameworks (Foundation, CryptoKit, CoreBluetooth, CoreNFC), so no further third-party library
 is linked into the app binary through it. The app also bundles one font file, listed below.
 

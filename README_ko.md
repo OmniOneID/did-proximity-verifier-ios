@@ -21,7 +21,7 @@ Proximity Verifier 는 ISO/IEC 18013-5 기반 mdoc 리더 앱입니다. 홀더�
 | OS               | iOS 17                                          |
 | Language         | Swift 5                                         |
 | UI Framework     | SwiftUI                                         |
-| IDE              | Xcode 27.0                                      |
+| IDE              | Xcode 27.2                                      |
 | Build System     | Xcode 기본 빌드 시스템                          |
 | Compatibility    | iOS 17 이상                                     |
 | Test Environment | iPhone 시뮬레이터 및 실기기                     |
@@ -69,7 +69,7 @@ Xcode 기본 빌드 시스템으로 앱을 컴파일하고 테스트하는 방�
 명령줄에서 같은 빌드를 하려면:
 ```sh
 xcodebuild -project source/ProximityVerifier.xcodeproj -scheme ProximityVerifier \
-  -destination 'platform=iOS Simulator,name=iPhone 17' build
+  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' build
 ```
 
 ## SDK 적용 방법
@@ -102,14 +102,16 @@ AID 두 개를 모두, 다음 순서로 등록해야 합니다.
 2. `A0000002480400` — mdoc 데이터 수신. 없으면 데이터 수신용 SELECT 가 거부됩니다.
 
 ### 신뢰 발급자
-신뢰 발급자 목록은 TAS 목록 API(`GET /list/api/v1/mdoc/issuers`)에서, 목록에 있는 발급자의 DID Document 는 별도 주소에서 가져옵니다. **Refresh Trusted Issuers** 를 누르면 둘을 함께 받아 단말에 저장하고, 검증은 저장된 사본만으로 합니다. 두 상수는 현재 개발 LAN 서버(http, `source/Config/Info.plist` 에 ATS 예외)를 가리키므로 출시 전에 운영 주소로 바꿉니다.
+신뢰 발급자 목록은 TAS 목록 API(`GET /list/api/v1/mdoc/issuers`)에서, 목록에 있는 발급자의 DID Document 는 API Gateway(`GET /api-gateway/api/v1/did-doc?did=...`)에서 가져옵니다. **Refresh Trusted Issuers** 를 누르면 둘을 함께 받아 단말에 저장하고, 검증은 저장된 사본만으로 합니다. 신뢰 발급자 목록이 비어 있으면 모든 발급자를 거부합니다.
 
-| 대상 | 상수 |
-| --- | --- |
-| 신뢰 발급자 목록의 TAS 호스트 | `TrustedIssuerRegistryConfig.host` (`source/ProximityVerifier/Trust/TrustedIssuerRegistry.swift`) |
-| 발급자 DID Document | `IssuerKeyStoreConfig.endpoint` (`source/ProximityVerifier/Trust/IssuerKeyStore.swift`) |
+두 서버 주소는 **Server URL** 화면(Settings → Trusted Issuers → 앱 바의 톱니바퀴 아이콘)에서 설정합니다. 서버마다 Default(빌드 기본값) 또는 Custom(화면에서 입력한 URL) 중 하나를 씁니다. 저장한 값은 재시작 없이 다음 요청부터 적용되며, 저장으로 실제 사용 URL 이 바뀌면 저장된 신뢰 발급자 목록을 지우므로 다시 갱신해야 합니다.
 
-TAS 호스트를 `nil` 로 두면 샘플 발급자 목록과 빈 DID Document 를 쓰므로 발급자 서명을 검증할 수 없습니다. 신뢰 발급자 목록이 비어 있으면 모든 발급자를 거부합니다.
+| 서버 | 제공 | 빌드 기본값 |
+| --- | --- | --- |
+| TAS | 신뢰 발급자 목록 | `http://192.168.3.110:8090` |
+| API Gateway | 발급자 DID Document | `http://192.168.3.110:8093` |
+
+빌드 기본값은 개발 LAN 서버(http)이며 `ServerEndpoint.defaultValue` (`source/ProximityVerifier/Trust/ServerURLStore.swift`)에 정의되어 있으므로 출시 전에 운영 주소로 바꿉니다. http 통신은 `source/Config/Info.plist` 의 `NSAllowsArbitraryLoads` 로 허용하며, 같은 파일에 로컬 네트워크 접근용 `NSLocalNetworkUsageDescription` 도 선언되어 있습니다.
 
 ### 홀더 없이 실행하기 (DEBUG 전용)
 디버그 빌드는 SDK 세션을 샘플 데이터로 바꾸는 실행 인자를 받습니다.
